@@ -1,0 +1,419 @@
+/* =========================================================
+   AI MODEL TRACKER — "Dossier" theme
+   Palette: ink navy surface, aged-brass accent, muted teal
+            for live/sync states, rust for warnings.
+   Type: Fraunces (display/serif) for identity, IBM Plex Mono
+         for data-dense cells, Inter for UI chrome.
+========================================================= */
+
+:root{
+    --ink:          #12141c;
+    --surface:      #1a1e29;
+    --surface-alt:  #212637;
+    --surface-hi:   #262c40;
+    --hairline:     #333a4f;
+
+    --brass:        #c9a227;
+    --brass-dim:    #8a7423;
+    --brass-glow:   rgba(201,162,39,.18);
+
+    --teal:         #5fb3ac;
+    --rust:         #e2725b;
+
+    --text:         #eef0f5;
+    --text-muted:   #8b93a7;
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
+    --font-ui:      'Inter', "Segoe UI", sans-serif;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:var(--font-ui);
+}
+
+body{
+    background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(201,162,39,.06), transparent 60%),
+        var(--ink);
+    color:var(--text);
+    min-height:100vh;
+}
+
+/* =========================
+   HEADER / "FOLDER TAB"
+========================= */
+
+.topbar{
+    position:sticky;
+    top:0;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:16px 28px;
+    background:var(--surface);
+    border-bottom:1px solid var(--hairline);
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+    z-index:100;
+}
+
+/* the signature element: a brass double-rule under the brand block,
+   like a stamped case-file tab */
+.brand{
+    position:relative;
+    padding-right:20px;
+    margin-right:4px;
+}
+
+.brand::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:20px;
+    bottom:-16px;
+    height:3px;
+    background:
+        linear-gradient(90deg, var(--brass) 0%, var(--brass) 70%, transparent 70%),
+        linear-gradient(90deg, var(--brass-dim) 0%, var(--brass-dim) 100%);
+    background-size:100% 1px, 100% 1px;
+    background-position:0 0, 0 3px;
+    background-repeat:no-repeat;
+}
+
+.eyebrow{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin-bottom:2px;
+}
+
+.logo{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:22px;
+    letter-spacing:.01em;
+    color:var(--text);
+}
+
+#search{
+    flex:1;
+    max-width:320px;
+    padding:10px 14px;
+    border:1px solid var(--hairline);
+    outline:none;
+    border-radius:6px;
+    background:var(--surface-alt);
+    color:var(--text);
+    font-size:14px;
+}
+
+#search::placeholder{
+    color:var(--text-muted);
+}
+
+#search:focus{
+    border-color:var(--brass);
+    box-shadow:0 0 0 3px var(--brass-glow);
+}
+
+button{
+    padding:10px 18px;
+    border:1px solid transparent;
+    border-radius:6px;
+    background:var(--brass);
+    color:#1a1508;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition:transform .15s ease, background .15s ease;
+}
+
+button:hover{
+    transform:translateY(-1px);
+    background:#dcb32f;
+}
+
+button:active{
+    transform:translateY(0);
+}
+
+/* =========================
+   SYNC STATUS PILL
+========================= */
+
+.sync-status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-muted);
+    padding:6px 12px;
+    border:1px solid var(--hairline);
+    border-radius:999px;
+    background:var(--surface-alt);
+    white-space:nowrap;
+}
+
+.sync-status .dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--text-muted);
+    flex-shrink:0;
+}
+
+.sync-status[data-state="connecting"] .dot{
+    background:var(--text-muted);
+}
+
+.sync-status[data-state="saving"] .dot{
+    background:var(--brass);
+    animation:pulse 1s ease-in-out infinite;
+}
+
+.sync-status[data-state="synced"] .dot,
+.sync-status[data-state="saved"] .dot{
+    background:var(--teal);
+    box-shadow:0 0 6px rgba(95,179,172,.6);
+}
+
+.sync-status[data-state="error"] .dot{
+    background:var(--rust);
+    box-shadow:0 0 6px rgba(226,114,91,.6);
+}
+
+@keyframes pulse{
+    0%, 100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.4; transform:scale(.7); }
+}
+
+/* =========================
+   AUTH AREA
+========================= */
+
+.auth-area{
+    display:flex;
+    align-items:center;
+}
+
+.login-form{
+    display:flex;
+    gap:6px;
+}
+
+.login-form input{
+    width:130px;
+    padding:9px 11px;
+    font-size:13px;
+    border:1px solid var(--hairline);
+    border-radius:6px;
+    background:var(--surface-alt);
+    color:var(--text);
+    outline:none;
+}
+
+.login-form input:focus{
+    border-color:var(--brass);
+}
+
+.login-form button,
+#logoutBtn{
+    padding:9px 16px;
+    font-size:13px;
+    white-space:nowrap;
+}
+
+#logoutBtn{
+    background:transparent;
+    border:1px solid var(--hairline);
+    color:var(--text-muted);
+}
+
+#logoutBtn:hover{
+    border-color:var(--brass);
+    color:var(--brass);
+    background:transparent;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container{
+    padding:28px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 10px;
+    table-layout:fixed;
+}
+
+td:first-child, th:first-child{
+    width:200px;
+}
+
+th{
+    background:transparent;
+    padding:0 14px 10px;
+    text-align:left;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--brass);
+    font-weight:600;
+    border-bottom:1px solid var(--hairline);
+}
+
+td{
+    background:var(--surface);
+    padding:14px;
+    vertical-align:middle;
+    overflow:hidden;
+    border-top:1px solid var(--hairline);
+    border-bottom:1px solid var(--hairline);
+    font-size:14px;
+}
+
+td:first-child{
+    border-left:1px solid var(--hairline);
+    border-radius:8px 0 0 8px;
+}
+
+td:last-child{
+    border-right:1px solid var(--hairline);
+    border-radius:0 8px 8px 0;
+}
+
+tr:hover td{
+    background:var(--surface-hi);
+}
+
+/* character name cell gets the display face */
+td:nth-child(2){
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:16px;
+}
+
+/* link + notes cells get the mono face, like typed case-file entries */
+td:nth-child(6),
+td:nth-child(7){
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--text-muted);
+}
+
+/* =========================
+   PHOTO BOX
+========================= */
+
+.photo-box{
+    width:180px;
+    height:180px;
+    border-radius:8px;
+    background:var(--surface-alt);
+    border:1px dashed var(--hairline);
+    overflow:hidden;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    position:relative;
+}
+
+.photo-box img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+/* =========================
+   INPUTS (dropdowns)
+========================= */
+
+select{
+    width:100%;
+    padding:9px;
+    border-radius:6px;
+    border:1px solid var(--hairline);
+    background:var(--surface-alt);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:13px;
+    outline:none;
+}
+
+select:focus{
+    border-color:var(--brass);
+    box-shadow:0 0 0 3px var(--brass-glow);
+}
+
+select:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+}
+
+/* editable text */
+td[contenteditable="true"]{
+    outline:none;
+    border-radius:4px;
+    transition:box-shadow .15s ease;
+}
+
+td[contenteditable="true"]:focus{
+    box-shadow:0 0 0 2px var(--brass-glow);
+}
+
+td[contenteditable="false"]{
+    outline:none;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:var(--brass-dim);
+    border-radius:20px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 860px){
+    .topbar{
+        flex-wrap:wrap;
+        row-gap:12px;
+    }
+
+    .brand::after{
+        display:none;
+    }
+
+    #search{
+        max-width:none;
+        order:4;
+        flex-basis:100%;
+    }
+}
