@@ -25,6 +25,7 @@ const docRef = db.collection("tracker").doc("shared");
 
 let saveTimer = null;
 let isOwner = false; // true only when signed in
+let lastSyncedJSON = null; // last data we know is saved - used to skip needless re-renders
 
 // -------------------------------
 // Auth: sign in / out
@@ -300,14 +301,18 @@ function scheduleSave() {
     if (!isOwner) return;
     setSyncStatus("saving", "saving…");
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveData, 600);
+    saveTimer = setTimeout(saveData, 800);
 }
 
 function saveData() {
     if (!isOwner) return;
     const rows = serializeRows();
+    const json = JSON.stringify(rows);
     docRef.set({ rows, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
-        .then(() => setSyncStatus("saved", "saved"))
+        .then(() => {
+            lastSyncedJSON = json;
+            setSyncStatus("saved", "saved");
+        })
         .catch(err => {
             console.error("Save failed:", err);
             setSyncStatus("error", "save failed");
@@ -328,8 +333,21 @@ docRef.onSnapshot({ includeMetadataChanges: true }, (doc) => {
     // wiping out whatever you're currently typing.
     if (doc.metadata.hasPendingWrites) return;
 
+    const incomingRows = doc.exists ? (doc.data().rows || []) : [];
+    const incomingJSON = JSON.stringify(incomingRows);
+
+    if (incomingJSON === lastSyncedJSON) {
+        // This snapshot is just the server confirming a write we already made
+        // (or a load that matches what we already have) - nothing changed,
+        // so don't rebuild the table and interrupt anyone mid-typing.
+        setSyncStatus("synced", "synced");
+        return;
+    }
+
+    lastSyncedJSON = incomingJSON;
+
     if (doc.exists) {
-        render(doc.data().rows || []);
+        render(incomingRows);
     } else if (isOwner) {
         // Nothing in the database yet - seed one example row (owner only)
         render([{ character: "Sonam" }]);
